@@ -1,29 +1,29 @@
 package io.iktech.modernapp
 
+import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import io.iktech.modernapp.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), RepositoryRecyclerViewAdapter.OnItemClickListener {
 
     lateinit var binding: ActivityMainBinding
-//    var repository = Repository("Medium Android Repository Article",
-//            "Fleka", 1000, true)
-    var mainViewModel = MainViewModel()
+    private val repositoryRecyclerViewAdapter = RepositoryRecyclerViewAdapter(arrayListOf(), this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-//        binding.repository = repository
-        binding.viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        binding.viewModel = viewModel
         binding.executePendingBindings()
-//        binding.apply {
-////            repositoryName.text = "Modern Android Medium Article"
-//            repositoryOwner.text = this.repository?.repositoryOwner
-//            numberOfStarts.text = this.repository?.numberOfStars.toString() + " stars"
-//        }
-//        Handler().postDelayed({repository.repositoryName="New Name"}, 10000)
+        binding.repositoryRv.layoutManager = LinearLayoutManager(this)
+        binding.repositoryRv.adapter = repositoryRecyclerViewAdapter
+        viewModel.repositories.observe(this, Observer<ArrayList<Repository>> { it?.let { repositoryRecyclerViewAdapter.replaceData(it) } })
+    }
+    override fun onItemClick(position: Int) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

@@ -7,10 +7,6 @@ import android.os.Handler
  * Created by ikolomiyets on 22/01/2018.
  */
 class RepoModel {
-    fun refreshData(onDataReadyCallback: OnDataReadyCallback) {
-        Handler().postDelayed({ onDataReadyCallback.onDataReady("new data")}, 2000)
-    }
-
     fun getRepositories(onRepositoryReadyCallback: OnRepositoryReadyCallback) {
         var arrayList = ArrayList<Repository>()
         arrayList.add(Repository("First", "Owner 1", 100 , false))
