@@ -1,15 +1,16 @@
 package io.iktech.modernapp
 
+import android.app.Application
+import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableField
-import android.os.Handler
 
 /**
  * Created by ikolomiyets on 22/01/2018.
  */
-class MainViewModel : ViewModel() {
-    var repoModel: RepoModel = RepoModel()
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    var repoModel: GitRepoRepository = GitRepoRepository(NetManager(getApplication()))
     var repositories = MutableLiveData<ArrayList<Repository>>()
     val text = ObservableField<String>("old data")
     val isLoading = ObservableField<Boolean>(false)
