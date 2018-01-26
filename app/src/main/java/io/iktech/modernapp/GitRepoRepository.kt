@@ -2,6 +2,10 @@ package io.iktech.modernapp
 
 import android.content.Context
 import android.os.Handler
+import io.reactivex.Completable
+import io.reactivex.Observable
+import io.reactivex.Single
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -11,30 +15,18 @@ class GitRepoRepository (var netManager: NetManager) {
     val localDataSource = GitRepoLocalDataSource()
     val remoteDataSource = GitRepoRemoteDataSource()
 
-    fun getRepositories(onRepositoryReadyCallback: OnRepositoryReadyCallback) {
+    fun getRepositories() : Observable<ArrayList<Repository>>  {
         netManager.isConnectedToInternet?.let {
             if (it) {
-                remoteDataSource.getRepositories(object : OnRepoRemoteReadyCallback {
-                    override fun onRemoteDataReady(data: ArrayList<Repository>) {
-                        localDataSource.saveRepositories(data)
-                        onRepositoryReadyCallback.onDataReady(data)
-                    }
-                })
-            } else {
-                localDataSource.getRepositories(object : OnRepoLocalReadyCallback {
-                    override fun onLocalDataReady(data: ArrayList<Repository>) {
-                        onRepositoryReadyCallback.onDataReady(data)
-                    }
-                })
+                return remoteDataSource
+                        .getRepositories()
+                        .flatMap {
+                            return@flatMap localDataSource.saveRepositories(it)
+                                    .toSingleDefault(it)
+                                    .toObservable()
+                        }
             }
         }
+        return localDataSource.getRepositories()
     }
-
-    fun saveRepositories(arrayList: ArrayList<Repository>){
-        //todo save repositories in DB
-    }
-}
-
-interface OnRepositoryReadyCallback {
-    fun onDataReady(data: ArrayList<Repository>)
 }
